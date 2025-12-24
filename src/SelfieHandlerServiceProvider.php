@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LBHurtado\FormHandlerSelfie;
 
 use Illuminate\Support\ServiceProvider;
+use LBHurtado\FormHandlerSelfie\Console\InstallSelfieHandlerCommand;
 
 /**
  * Selfie Handler Service Provider
@@ -35,6 +36,13 @@ class SelfieHandlerServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Register console commands
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                InstallSelfieHandlerCommand::class,
+            ]);
+        }
+        
         // Publish configuration
         $this->publishes([
             __DIR__.'/../config/selfie-handler.php' => config_path('selfie-handler.php'),
