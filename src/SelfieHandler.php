@@ -30,7 +30,7 @@ class SelfieHandler implements FormHandlerInterface
         
         // Validate using Laravel's validator directly
         $validated = validator($inputData, [
-            'image' => 'required|string', // base64 encoded image
+            'selfie' => 'required|string', // base64 encoded image
             'width' => 'nullable|integer|min:320|max:1920',
             'height' => 'nullable|integer|min:240|max:1080',
             'format' => 'nullable|string|in:image/jpeg,image/png,image/webp',

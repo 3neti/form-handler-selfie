@@ -14,7 +14,7 @@ use Spatie\LaravelData\Data;
 class SelfieData extends Data
 {
     public function __construct(
-        public string $image,        // base64 encoded image
+        public string $selfie,       // base64 encoded image
         public string $timestamp,
         public int $width,
         public int $height,
