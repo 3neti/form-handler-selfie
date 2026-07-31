@@ -8,7 +8,7 @@ use Spatie\LaravelData\Data;
 
 /**
  * Selfie Data
- * 
+ *
  * Represents captured selfie image data from browser camera.
  */
 class SelfieData extends Data

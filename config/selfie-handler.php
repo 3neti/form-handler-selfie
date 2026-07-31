@@ -10,7 +10,7 @@ return [
     |
     */
     'width' => env('SELFIE_HANDLER_WIDTH', 640),
-    
+
     /*
     |--------------------------------------------------------------------------
     | Image Height
@@ -20,7 +20,7 @@ return [
     |
     */
     'height' => env('SELFIE_HANDLER_HEIGHT', 480),
-    
+
     /*
     |--------------------------------------------------------------------------
     | Image Quality
@@ -31,7 +31,7 @@ return [
     |
     */
     'quality' => env('SELFIE_HANDLER_QUALITY', 0.85),
-    
+
     /*
     |--------------------------------------------------------------------------
     | Image Format
@@ -42,7 +42,7 @@ return [
     |
     */
     'format' => env('SELFIE_HANDLER_FORMAT', 'image/jpeg'),
-    
+
     /*
     |--------------------------------------------------------------------------
     | Camera Facing Mode
@@ -53,7 +53,7 @@ return [
     |
     */
     'facing_mode' => env('SELFIE_HANDLER_FACING_MODE', 'user'),
-    
+
     /*
     |--------------------------------------------------------------------------
     | Show Face Guide
