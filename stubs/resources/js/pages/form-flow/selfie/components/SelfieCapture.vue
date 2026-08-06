@@ -180,7 +180,7 @@ onMounted(() => {
             <!-- Face guide overlay -->
             <div class="absolute inset-0 flex items-center justify-center">
               <div
-                class="w-64 h-80 border-4 border-white/50 rounded-full"
+                class="selfie-face-guide border-4 border-white/50 rounded-full"
               ></div>
             </div>
           </div>
@@ -252,3 +252,11 @@ onMounted(() => {
     <CameraPermissionAlert ref="cameraAlertRef" />
   </FormFlowScreen>
 </template>
+
+<style scoped>
+.selfie-face-guide {
+  width: min(16rem, 58vw);
+  height: min(20rem, 46vh);
+  min-height: 14rem;
+}
+</style>
