@@ -29,6 +29,7 @@ export interface SelfieData {
 interface Props {
   config?: SelfieConfig;
   uiVariant?: FormFlowUiVariant | string | null;
+  previewMode?: boolean;
 }
 
 interface Emits {
@@ -39,6 +40,7 @@ interface Emits {
 const props = withDefaults(defineProps<Props>(), {
   config: () => ({}),
   uiVariant: "default",
+  previewMode: false,
 });
 
 const emit = defineEmits<Emits>();
@@ -139,6 +141,7 @@ function handleCancel() {
 }
 
 onMounted(() => {
+  if (props.previewMode) return;
   initCamera();
 });
 </script>

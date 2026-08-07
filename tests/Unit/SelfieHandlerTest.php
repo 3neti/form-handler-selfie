@@ -3,12 +3,23 @@
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use LBHurtado\FormFlowManager\Contracts\FormHandlerInterface;
+use LBHurtado\FormFlowManager\Contracts\FormHandlerPreviewInterface;
 use LBHurtado\FormFlowManager\Data\FormFlowStepData;
 use LBHurtado\FormHandlerSelfie\SelfieHandler;
 
 test('implements FormHandlerInterface', function () {
     $handler = new SelfieHandler;
     expect($handler)->toBeInstanceOf(FormHandlerInterface::class);
+});
+
+test('selfie preview uses the production screen in inert mode', function () {
+    $preview = (new SelfieHandler)->preview(
+        FormFlowStepData::from(['handler' => 'selfie', 'config' => []]),
+    );
+
+    expect(new SelfieHandler)->toBeInstanceOf(FormHandlerPreviewInterface::class)
+        ->and($preview['component'])->toBe('form-flow/selfie/SelfieCapturePage')
+        ->and($preview['props']['preview_mode'])->toBeTrue();
 });
 
 test('returns correct handler name', function () {

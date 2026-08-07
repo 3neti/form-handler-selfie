@@ -14,3 +14,8 @@ it('renders the selfie face guide with explicit oval dimensions', function (): v
         ->toContain('min-height: 14rem;')
         ->not->toContain('w-64 h-80 border-4 border-white/50 rounded-full');
 });
+test('published claim screen fails closed in preview mode', function () {
+    $source = file_get_contents(dirname(__DIR__, 2).'/stubs/resources/js/pages/form-flow/selfie/components/SelfieCapture.vue');
+
+    expect($source)->toContain('props.previewMode');
+});

@@ -12,11 +12,13 @@ interface Props {
   step: string;
   config?: SelfieConfig;
   ui_variant?: FormFlowUiVariant | string | null;
+  preview_mode?: boolean;
 }
 
 const props = defineProps<Props>();
 
 function handleSubmit(selfieData: SelfieData) {
+  if (props.preview_mode) return;
   // Submit to FormFlowController
   router.post(`/form-flow/${props.flow_id}/step/${props.step}`, {
     data: selfieData as unknown as Record<string, any>,
@@ -24,6 +26,7 @@ function handleSubmit(selfieData: SelfieData) {
 }
 
 function handleCancel() {
+  if (props.preview_mode) return;
   // Cancel the flow
   router.post(`/form-flow/${props.flow_id}/cancel`);
 }
@@ -34,6 +37,7 @@ function handleCancel() {
     <SelfieCapture
       :config="config"
       :ui-variant="ui_variant"
+      :preview-mode="preview_mode"
       @submit="handleSubmit"
       @cancel="handleCancel"
     />

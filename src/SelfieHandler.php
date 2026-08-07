@@ -7,6 +7,7 @@ namespace LBHurtado\FormHandlerSelfie;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use LBHurtado\FormFlowManager\Contracts\FormHandlerInterface;
+use LBHurtado\FormFlowManager\Contracts\FormHandlerPreviewInterface;
 use LBHurtado\FormFlowManager\Data\FormFlowStepData;
 use LBHurtado\FormHandlerSelfie\Data\SelfieData;
 
@@ -16,7 +17,7 @@ use LBHurtado\FormHandlerSelfie\Data\SelfieData;
  * Captures user's selfie using browser camera (MediaDevices API).
  * Stores image as base64-encoded string.
  */
-class SelfieHandler implements FormHandlerInterface
+class SelfieHandler implements FormHandlerInterface, FormHandlerPreviewInterface
 {
     public function getName(): string
     {
@@ -52,9 +53,17 @@ class SelfieHandler implements FormHandlerInterface
 
     public function render(FormFlowStepData $step, array $context = [])
     {
-        // Renders page at resources/js/pages/form-flow/selfie/SelfieCapturePage.vue
+        return Inertia::render('form-flow/selfie/SelfieCapturePage', $this->props($step, $context));
+    }
 
-        return Inertia::render('form-flow/selfie/SelfieCapturePage', [
+    public function preview(FormFlowStepData $step, array $context = []): array
+    {
+        return ['component' => 'form-flow/selfie/SelfieCapturePage', 'props' => $this->props($step, array_merge($context, ['preview_mode' => true]))];
+    }
+
+    protected function props(FormFlowStepData $step, array $context): array
+    {
+        return [
             'flow_id' => $context['flow_id'] ?? null,
             'step' => (string) ($context['step_index'] ?? 0),
             'config' => array_merge([
@@ -66,7 +75,8 @@ class SelfieHandler implements FormHandlerInterface
                 'show_guide' => config('selfie-handler.show_guide', true),
             ], $step->config),
             'ui_variant' => $step->config['ui_variant'] ?? config('form-flow.ui.variant', 'default'),
-        ]);
+            'preview_mode' => (bool) ($context['preview_mode'] ?? false),
+        ];
     }
 
     public function getConfigSchema(): array
