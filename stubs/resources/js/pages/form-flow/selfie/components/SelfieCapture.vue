@@ -253,13 +253,14 @@ onMounted(() => {
         v-if="hasCaptured"
         class="grid gap-3 pt-4 sm:grid-cols-3"
         :class="{
-          'fixed inset-x-0 bottom-[max(0.2in,calc(env(safe-area-inset-bottom)+1rem))] z-30 mx-auto w-full max-w-md grid-cols-3 gap-2 px-5 pt-0 sm:max-w-lg':
+          'fixed inset-x-0 z-30 mx-auto w-full max-w-md grid-cols-3 gap-2 px-5 pt-0 sm:max-w-lg':
             actionPlacement === 'viewport_bottom',
           'sticky bottom-0 z-10 -mx-4 mt-auto border-t bg-card/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-card/85 sm:-mx-5 sm:px-5':
             actionPlacement === 'bottom_sticky',
           'mt-auto border-t':
             actionPlacement === 'bottom' || (!actionPlacement && isImmersive),
         }"
+        :style="isViewportBottom ? { bottom: 'max(0.2in, calc(env(safe-area-inset-bottom) + 1rem))' } : undefined"
       >
         <Button
           type="button"
