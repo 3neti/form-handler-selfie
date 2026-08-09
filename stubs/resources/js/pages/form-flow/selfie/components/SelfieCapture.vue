@@ -26,9 +26,20 @@ export interface SelfieData {
   format: string;
 }
 
+interface PackageVersion {
+  name: string;
+  version: string;
+}
+
 interface Props {
   config?: SelfieConfig;
   uiVariant?: FormFlowUiVariant | string | null;
+  actionPlacement?: "inline" | "bottom" | "bottom_sticky" | string | null;
+  uiLayout?: Record<string, unknown> | null;
+  appName?: string | null;
+  appLogo?: string | null;
+  packageVersions?: PackageVersion[] | Record<string, string> | null;
+  showPackageVersions?: boolean;
   previewMode?: boolean;
 }
 
@@ -40,6 +51,12 @@ interface Emits {
 const props = withDefaults(defineProps<Props>(), {
   config: () => ({}),
   uiVariant: "default",
+  actionPlacement: null,
+  uiLayout: null,
+  appName: null,
+  appLogo: null,
+  packageVersions: null,
+  showPackageVersions: false,
   previewMode: false,
 });
 
@@ -151,6 +168,10 @@ onMounted(() => {
     title="Selfie Required"
     description="Please take a clear photo of yourself"
     :variant="uiVariant"
+    :app-name="appName"
+    :app-logo="appLogo"
+    :package-versions="packageVersions"
+    :show-package-versions="showPackageVersions"
   >
     <template #icon>
       <Camera class="h-5 w-5" />
@@ -211,6 +232,7 @@ onMounted(() => {
         :variant="uiVariant"
         primary-label="Capture Photo"
         primary-type="button"
+        :action-placement="actionPlacement"
         :primary-disabled="!!cameraError"
         @primary="captureSelfie"
         @secondary="handleCancel"
@@ -222,7 +244,9 @@ onMounted(() => {
         class="grid gap-3 pt-4 sm:grid-cols-3"
         :class="{
           'sticky bottom-0 z-10 -mx-4 mt-auto border-t bg-card/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-card/85 sm:-mx-5 sm:px-5':
-            isImmersive,
+            actionPlacement === 'bottom_sticky',
+          'mt-auto border-t':
+            actionPlacement === 'bottom' || (!actionPlacement && isImmersive),
         }"
       >
         <Button
