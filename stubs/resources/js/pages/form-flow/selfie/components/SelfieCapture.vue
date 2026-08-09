@@ -34,7 +34,7 @@ interface PackageVersion {
 interface Props {
   config?: SelfieConfig;
   uiVariant?: FormFlowUiVariant | string | null;
-  actionPlacement?: "inline" | "bottom" | "bottom_sticky" | string | null;
+  actionPlacement?: "inline" | "bottom" | "bottom_sticky" | "viewport_bottom" | string | null;
   uiLayout?: Record<string, unknown> | null;
   appName?: string | null;
   appLogo?: string | null;
@@ -80,6 +80,9 @@ const format = computed(() => props.config?.format ?? "image/jpeg");
 const facingMode = computed(() => props.config?.facing_mode ?? "user");
 const showGuide = computed(() => props.config?.show_guide ?? true);
 const isImmersive = computed(() => props.uiVariant === "immersive");
+const isViewportBottom = computed(
+  () => props.actionPlacement === "viewport_bottom",
+);
 const formClass = computed(() =>
   isImmersive.value ? "flex flex-1 flex-col gap-4" : "space-y-6",
 );
@@ -172,6 +175,7 @@ onMounted(() => {
     :app-logo="appLogo"
     :package-versions="packageVersions"
     :show-package-versions="showPackageVersions"
+    version-context="selfie"
   >
     <template #icon>
       <Camera class="h-5 w-5" />
@@ -240,9 +244,17 @@ onMounted(() => {
       </FormFlowActions>
 
       <div
-        v-else
+        v-if="hasCaptured && isViewportBottom"
+        class="h-24 shrink-0"
+        aria-hidden="true"
+      />
+
+      <div
+        v-if="hasCaptured"
         class="grid gap-3 pt-4 sm:grid-cols-3"
         :class="{
+          'fixed inset-x-0 bottom-[max(0.2in,calc(env(safe-area-inset-bottom)+1rem))] z-30 mx-auto w-full max-w-md grid-cols-3 gap-2 px-5 pt-0 sm:max-w-lg':
+            actionPlacement === 'viewport_bottom',
           'sticky bottom-0 z-10 -mx-4 mt-auto border-t bg-card/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-card/85 sm:-mx-5 sm:px-5':
             actionPlacement === 'bottom_sticky',
           'mt-auto border-t':
