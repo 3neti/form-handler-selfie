@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import FormFlowNotice from "@/pages/form-flow/core/components/FormFlowNotice.vue";
 import { ref, computed, onMounted } from "vue";
 import { useCamera } from "../composables/useCamera";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Camera, RotateCw } from "lucide-vue-next";
 import CameraPermissionAlert from "./CameraPermissionAlert.vue";
+import { useFormFlowPresentation } from "@/pages/form-flow/core/components/formFlowPresentation";
+import FormFlowAction from "@/pages/form-flow/core/components/FormFlowAction.vue";
 import FormFlowActions from "@/pages/form-flow/core/components/FormFlowActions.vue";
 import FormFlowScreen from "@/pages/form-flow/core/components/FormFlowScreen.vue";
 import type { FormFlowUiVariant } from "@/pages/form-flow/core/components/formFlowUiVariant";
@@ -34,7 +37,13 @@ interface PackageVersion {
 interface Props {
   config?: SelfieConfig;
   uiVariant?: FormFlowUiVariant | string | null;
-  actionPlacement?: "inline" | "bottom" | "bottom_sticky" | "viewport_bottom" | string | null;
+  actionPlacement?:
+    | "inline"
+    | "bottom"
+    | "bottom_sticky"
+    | "viewport_bottom"
+    | string
+    | null;
   uiLayout?: Record<string, unknown> | null;
   appName?: string | null;
   appLogo?: string | null;
@@ -79,9 +88,14 @@ const quality = computed(() => props.config?.quality ?? 0.85);
 const format = computed(() => props.config?.format ?? "image/jpeg");
 const facingMode = computed(() => props.config?.facing_mode ?? "user");
 const showGuide = computed(() => props.config?.show_guide ?? true);
-const isImmersive = computed(() => props.uiVariant === "immersive");
+const presentation = useFormFlowPresentation();
+const isImmersive = computed(
+  () => (presentation.value?.layout.density ?? props.uiVariant) === "immersive",
+);
 const isViewportBottom = computed(
-  () => props.actionPlacement === "viewport_bottom",
+  () =>
+    (presentation.value?.actions.placement ?? props.actionPlacement) ===
+    "viewport_bottom",
 );
 const formClass = computed(() =>
   isImmersive.value ? "flex flex-1 flex-col gap-4" : "space-y-6",
@@ -93,6 +107,7 @@ const mediaClass = computed(() =>
 );
 
 async function initCamera() {
+  if (props.previewMode) return;
   try {
     const mediaStream = await startCamera({
       video: {
@@ -113,6 +128,7 @@ async function initCamera() {
 }
 
 function captureSelfie() {
+  if (props.previewMode) return;
   if (!videoRef.value || !canvasRef.value) return;
 
   const canvas = canvasRef.value;
@@ -143,6 +159,7 @@ function retakeSelfie() {
 }
 
 function handleSubmit() {
+  if (props.previewMode) return;
   if (!capturedImage.value) return;
 
   const selfieData: SelfieData = {
@@ -182,12 +199,11 @@ onMounted(() => {
     </template>
 
     <template #alert>
-      <Alert v-if="cameraError" variant="destructive" class="mb-6">
-        <AlertCircle class="h-4 w-4" />
+      <FormFlowNotice v-if="cameraError" class="mb-6" role="error">
         <AlertDescription>
           {{ cameraError }}
         </AlertDescription>
-      </Alert>
+      </FormFlowNotice>
     </template>
 
     <form @submit.prevent="handleSubmit" :class="formClass">
@@ -196,6 +212,7 @@ onMounted(() => {
         <!-- Live Camera Feed (before capture) -->
         <div
           v-if="!hasCaptured"
+          data-flow-capture-surface
           class="relative rounded-lg border overflow-hidden bg-black"
         >
           <video
@@ -215,7 +232,11 @@ onMounted(() => {
         </div>
 
         <!-- Captured Image Preview -->
-        <div v-else class="relative rounded-lg border overflow-hidden">
+        <div
+          v-else
+          data-flow-capture-surface
+          class="relative rounded-lg border overflow-hidden"
+        >
           <img :src="capturedImage" alt="Your selfie" :class="mediaClass" />
         </div>
 
@@ -232,6 +253,8 @@ onMounted(() => {
       </div>
 
       <FormFlowActions
+        primary-role="capture"
+        secondary-role="cancel"
         v-if="!hasCaptured"
         :variant="uiVariant"
         primary-label="Capture Photo"
@@ -254,34 +277,45 @@ onMounted(() => {
         class="grid gap-3 pt-4 sm:grid-cols-3"
         :class="{
           'fixed inset-x-0 z-30 mx-auto w-full max-w-md grid-cols-3 gap-2 px-5 pt-0 sm:max-w-lg':
-            actionPlacement === 'viewport_bottom',
+            (presentation?.actions.placement ?? actionPlacement) ===
+            'viewport_bottom',
           'sticky bottom-0 z-10 -mx-4 mt-auto border-t bg-card/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-card/85 sm:-mx-5 sm:px-5':
-            actionPlacement === 'bottom_sticky',
+            (presentation?.actions.placement ?? actionPlacement) ===
+            'bottom_sticky',
           'mt-auto border-t':
-            actionPlacement === 'bottom' || (!actionPlacement && isImmersive),
+            (presentation?.actions.placement ?? actionPlacement) === 'bottom' ||
+            (!actionPlacement && isImmersive),
         }"
-        :style="isViewportBottom ? { bottom: 'max(0.2in, calc(env(safe-area-inset-bottom) + 1rem))' } : undefined"
+        :style="
+          isViewportBottom
+            ? { bottom: 'max(0.2in, calc(env(safe-area-inset-bottom) + 1rem))' }
+            : undefined
+        "
       >
-        <Button
+        <FormFlowAction
           type="button"
           variant="outline"
           class="w-full rounded-full"
           @click="handleCancel"
-        >
-          Back
-        </Button>
+          role="cancel"
+          label="Back"
+        />
 
         <!-- Capture Button (before capture) -->
-        <Button
+        <FormFlowAction
           type="button"
           variant="outline"
           class="w-full rounded-full"
           @click="retakeSelfie"
-        >
-          <RotateCw class="mr-2 h-4 w-4" />
-          Retake
-        </Button>
-        <Button type="submit" class="w-full rounded-full"> Continue </Button>
+          role="retake"
+          label="Retake"
+        />
+        <FormFlowAction
+          type="submit"
+          role="continue"
+          label="Continue"
+          class="w-full rounded-full"
+        />
       </div>
     </form>
 

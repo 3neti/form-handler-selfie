@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LBHurtado\FormHandlerSelfie;
 
 use Illuminate\Support\ServiceProvider;
+use LBHurtado\FormFlowManager\Services\FormFlowPresentationResolver;
 use LBHurtado\FormHandlerSelfie\Console\InstallSelfieHandlerCommand;
 
 /**
@@ -36,6 +37,8 @@ class SelfieHandlerServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        app(FormFlowPresentationResolver::class)->registerScreens(['selfie']);
+
         // Register console commands
         if ($this->app->runningInConsole()) {
             $this->commands([
